@@ -72,7 +72,7 @@ namespace CodeChallenge.Controllers
             return Ok(new ReportingStructure
             {
                 Employee = id,
-                NumberOfReports = employee.DirectReports.Count
+                NumberOfReports = employee.DirectReports != null ? employee.DirectReports.Count : 0
             });
         }
     }
