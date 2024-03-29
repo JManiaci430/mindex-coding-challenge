@@ -59,5 +59,62 @@ namespace CodeChallenge.Services
 
             return newEmployee;
         }
+
+        public ReportingStructure GetReportingStructure(Employee employee)
+        {
+            if (employee.DirectReports == null || employee.DirectReports.Count == 0)
+                return new ReportingStructure()
+                {
+                    Employee = employee,
+                    NumberOfReports = 0
+                };
+
+            var numOfReports = employee.DirectReports.Count;
+            foreach (var report in employee.DirectReports)
+            {
+                if (report.DirectReports != null)
+                    numOfReports += report.DirectReports.Count;
+            }
+
+            return new ReportingStructure()
+            {
+                Employee = employee,
+                NumberOfReports = numOfReports
+            };
+        }
+
+        public Compensation AddCompensation(Employee employee, Compensation compensation)
+        {
+            if (employee != null)
+            {
+                _employeeRepository.Remove(employee);
+                if (compensation != null)
+                {
+                    employee.Salary = compensation.Salary;
+                    employee.EffectiveDate = compensation.EffectiveDate;
+                }
+
+                _employeeRepository.Add(employee);
+                _employeeRepository.SaveAsync().Wait();
+            }
+
+            return compensation;
+        }
+
+        public Compensation GetCompensation(String id)
+        {
+            if (!String.IsNullOrEmpty(id))
+            {
+                var employee = _employeeRepository.GetById(id);
+                return new Compensation()
+                {
+                    EmployeeId = employee.EmployeeId,
+                    Salary = employee.Salary,
+                    EffectiveDate = employee.EffectiveDate
+                };
+            }
+
+            return null;
+        }
     }
 }
