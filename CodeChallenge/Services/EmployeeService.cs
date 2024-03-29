@@ -69,12 +69,7 @@ namespace CodeChallenge.Services
                     NumberOfReports = 0
                 };
 
-            var numOfReports = employee.DirectReports.Count;
-            foreach (var report in employee.DirectReports)
-            {
-                if (report.DirectReports != null)
-                    numOfReports += report.DirectReports.Count;
-            }
+            var numOfReports = GetNumberOfReports(employee);
 
             return new ReportingStructure()
             {
@@ -83,38 +78,19 @@ namespace CodeChallenge.Services
             };
         }
 
-        public Compensation AddCompensation(Employee employee, Compensation compensation)
+        private int GetNumberOfReports(Employee employee)
         {
-            if (employee != null)
+            var numberOfReports = employee.DirectReports.Count;
+
+            employee.DirectReports.ForEach(report =>
             {
-                _employeeRepository.Remove(employee);
-                if (compensation != null)
+                if (report.DirectReports != null || employee.DirectReports.Count > 1)
                 {
-                    employee.Salary = compensation.Salary;
-                    employee.EffectiveDate = compensation.EffectiveDate;
+                    numberOfReports += GetNumberOfReports(report);
                 }
+            });
 
-                _employeeRepository.Add(employee);
-                _employeeRepository.SaveAsync().Wait();
-            }
-
-            return compensation;
-        }
-
-        public Compensation GetCompensation(String id)
-        {
-            if (!String.IsNullOrEmpty(id))
-            {
-                var employee = _employeeRepository.GetById(id);
-                return new Compensation()
-                {
-                    EmployeeId = employee.EmployeeId,
-                    Salary = employee.Salary,
-                    EffectiveDate = employee.EffectiveDate
-                };
-            }
-
-            return null;
+            return numberOfReports;
         }
     }
 }
