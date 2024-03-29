@@ -70,32 +70,5 @@ namespace CodeChallenge.Controllers
 
             return Ok(structure);
         }
-
-        // REST Endpoint for adding Compensation information for Employee
-        [HttpPost("compensation")]
-        public IActionResult AddCompensation([FromBody]Compensation compensation)
-        {
-            _logger.LogDebug($"Received add compensation post request for '{compensation.EmployeeId}'");
-
-            var employee = _employeeService.GetById(compensation.EmployeeId);
-            if (employee == null)
-                return NotFound();
-
-            _employeeService.AddCompensation(employee, compensation);
-
-            return CreatedAtRoute("getCompensationById", new { id = compensation.EmployeeId }, compensation);
-        }
-
-        [HttpGet("compensation/{id}", Name = "getCompensationById")]
-        public IActionResult GetCompensationById(String id)
-        {
-            _logger.LogDebug($"Received compensation get request for '{id}'");
-
-            var compensation = _employeeService.GetCompensation(id);
-            if (compensation == null)
-                return NotFound();
-
-            return Ok(compensation);
-        }
     }
 }
