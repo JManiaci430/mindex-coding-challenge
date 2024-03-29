@@ -58,5 +58,22 @@ namespace CodeChallenge.Controllers
 
             return Ok(newEmployee);
         }
+
+        // REST Endpoint for retrieving Employee Structure
+        [HttpGet("structure/{id}", Name = "getStructureById")]
+        public IActionResult GetStructureById(String id)
+        {
+            _logger.LogDebug($"Received employee structure get request for '{id}'");
+
+            var employee = _employeeService.GetById(id);
+            if (employee == null)
+                return NotFound();
+
+            return Ok(new ReportingStructure
+            {
+                Employee = id,
+                NumberOfReports = employee.DirectReports != null ? employee.DirectReports.Count : 0
+            });
+        }
     }
 }
